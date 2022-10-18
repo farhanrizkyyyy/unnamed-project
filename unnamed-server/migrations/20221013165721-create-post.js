@@ -11,11 +11,14 @@ module.exports = {
       description: {
         type: Sequelize.STRING
       },
-      createdAt: {
+      coordinate: {
+        type: Sequelize.GEOMETRY('POINT')
+      },
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }

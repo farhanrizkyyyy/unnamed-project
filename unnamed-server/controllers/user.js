@@ -26,8 +26,6 @@ const getUserByUsername = async (req, res) => {
       where: { username: username }
     })
 
-    console.log(user);
-
     if (user) {
       res.send({
         status: 'Success',
@@ -53,22 +51,25 @@ const createUser = async (req, res) => {
   const lowerCasedUsername = username.toLowerCase()
 
   const token = jwt.sign(
-    { 'token': username },
+    { username: username },
     process.env.TOKEN_KEY || 'value',
-    {
-      expiresIn: "2h",
-    }
+    { expiresIn: "2h" }
   )
+
+  if (!(username && password && name && phone_number && address)) {
+    res.send({
+      status: 'Error',
+      message: 'All input is required'
+    })
+  }
 
   try {
     const existingUser = await User.findOne({
-      where: {
-        username: username
-      }
+      where: { username: username }
     })
 
     if (existingUser) {
-      res.status(res.statusCode).json({
+      res.send({
         status: 'Error',
         message: 'Username already exist'
       })
@@ -79,7 +80,7 @@ const createUser = async (req, res) => {
         name, phone_number, address, token,
         role_id: role_id || 2
       })
-      res.status(201).send({
+      res.send({
         status: 'Success',
         data: user
       })

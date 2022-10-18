@@ -4,6 +4,9 @@ const { sequelize } = require('./models')
 const userController = require('./controllers/user')
 const roleController = require('./controllers/role')
 const postController = require('./controllers/post')
+const authController = require('./controllers/auth')
+const routeController = require('./controllers/route')
+const authMiddleware = require('./middleware/auth')
 
 const PORT = process.env.PORT || 3100
 
@@ -12,12 +15,14 @@ app.use(bodyParser.urlencoded({
   extended: true
 }))
 
-app.get('/api', (req, res) => {
+app.get('/', (req, res) => {
   res.send('Still an unnamed project')
 })
 
 //Auth
 app.post('/api/sign-up', userController.createUser)
+app.post('/api/sign-in', authController.signIn)
+app.post('/api/sign-out', authController.signOut)
 
 //User
 app.get('/api/user', userController.getAllUser)
@@ -25,12 +30,18 @@ app.get('/api/user/:username', userController.getUserByUsername)
 
 //Role
 app.post('/api/role', roleController.createRole)
-app.get('/api/role', roleController.getAllRoles)
+app.get('/api/role', authMiddleware.verifyToken, roleController.getAllRoles)
+
+//Route
+app.post('/api/route/create', routeController.createRoute)
 
 //Post
-app.post('/api/posts', postController.createPost)
+app.get('/api/posts', postController.getAllPost)
+app.post('/api/post/create', authMiddleware.verifyToken, postController.createPost)
+app.delete('/api/post/delete', authMiddleware.verifyToken, postController.deletePost)
+app.put('/api/post/update', authMiddleware.verifyToken, postController.updatePost)
 
 app.listen(PORT, async () => {
-  // await sequelize.sync({ alter: true, force: true })
+  // await sequelize.sync({ alter: true })
   console.log(`App is running on http://localhost:${PORT}`)
 })

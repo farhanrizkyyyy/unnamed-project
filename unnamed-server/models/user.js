@@ -19,6 +19,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'user_id',
         allowNull: false
       })
+
+      // User.hasMany(models.Route, {
+      //   foreignKey: 'user_id',
+      //   allowNull: false
+      // })
     }
   }
   User.init({
