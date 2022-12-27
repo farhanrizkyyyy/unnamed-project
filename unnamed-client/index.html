@@ -10,10 +10,24 @@
 </head>
 
 <body>
-  <div id="map"></div>
-  <div id="popup" title="myproject" class="ol-popup">
-    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
-    <div id="popup-content"></div>
+  <div id="container">
+    <div id="form">
+      <form action="index.html" method="post">
+        From: <br>
+        <input type="text" name="fromLat" id="fromLat">
+        <input type="text" name="fromLon" id="fromLon"> <br> <br>
+        To: <br>
+        <input type="text" name="toLat" id="toLat">
+        <input type="text" name="toLon" id="toLon">
+      </form>
+      <br>
+      <input type="button" value="Reset" id="reset">
+    </div>
+    <div id="map"></div>
+    <div id="popup" title="myproject" class="ol-popup">
+      <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+      <div id="popup-content"></div>
+    </div>
   </div>
   <script type="module" src="./main.js"></script>
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>

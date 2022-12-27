@@ -1,68 +1,23 @@
 import axios from 'axios';
-import { Map, Overlay, View } from 'ol';
+import { Feature, Map, View } from 'ol';
+import GeoJSON from 'ol/format/GeoJSON';
+import { Point } from 'ol/geom';
 import TileLayer from 'ol/layer/Tile';
 import VectorLayer from 'ol/layer/Vector';
 import { fromLonLat } from 'ol/proj';
 import OSM from 'ol/source/OSM';
 import VectorSource from 'ol/source/Vector';
+import Icon from 'ol/style/Icon';
+import Stroke from 'ol/style/Stroke';
+import Style from 'ol/style/Style';
 import './style.css';
 
-var x = new Array
+var selectedCoordinates = {
+  start: [],
+  end: []
+}
 
-// fetch('http://127.0.0.1:3100/api/posts').then(
-//   (response) => {
-//     return response.json()
-//   }
-// ).then((response) => {
-//   var array = response['data']
-//   array.forEach(element => {
-//     x.push(element['coordinate']['coordinates'])
-//   });
-
-//   for (let i = 0; i < x.length; i++) {
-//     var marker = new Feature(new Point(fromLonLat(x[i])))
-//     markers.getSource().addFeature(marker)
-//     // markers.on('click', function () {
-//     //   console.log('test');
-//     // })
-//     // marker.on('click', function () {
-//     //   console.log('test');
-//     // })
-//   }
-// })
-
-axios.get('http://127.0.0.1:3100/api/posts').then(
-  (response) => {
-    console.log(response);
-  }
-).then((response) => {
-  var array = response['data']
-//   array.forEach(element => {
-//     x.push(element['coordinate']['coordinates'])
-//   });
-
-//   for (let i = 0; i < x.length; i++) {
-//     var marker = new Feature(new Point(fromLonLat(x[i])))
-//     markers.getSource().addFeature(marker)
-//     // markers.on('click', function () {
-//     //   console.log('test');
-//     // })
-//     // marker.on('click', function () {
-//     //   console.log('test');
-//     // })
-})
-
-var markers = new VectorLayer({
-  source: new VectorSource(),
-  style: {
-    'icon-scale': .04,
-    'icon-src': 'assets/marker.png'
-  }
-})
-
-markers.on('click', function () {
-  console.log('test');
-})
+var markersArray = new Array
 
 const map = new Map({
   target: 'map',
@@ -74,34 +29,91 @@ const map = new Map({
   ],
   view: new View({
     // projection: 'EPSG:4326',
-    center: fromLonLat([107.579225, -7.046725]),
-    zoom: 8
+    center: fromLonLat([107.679225, -6.746725]),
+    zoom: 9
   })
 });
 
-const straitSource = new VectorSource({ wrapX: true });
-var straitsLayer = new VectorLayer({
-  source: straitSource
-});
-
-var popup = new Overlay({
-  element: document.getElementById('popup'),
+var markers = new VectorLayer({
+  source: new VectorSource(),
+  style: new Style({
+    image: new Icon({
+      scale: .035,
+      src: 'assets/marker.png'
+    })
+  })
 })
 
-map.addLayer(markers)
-map.addOverlay(popup)
-map.on('hover', function (evt) {
-  var feature = map.forEachFeatureAtPixel(evt.pixel, function (feat, layer) {
-    return feat;
+axios.get('http://127.0.0.1:3100/api/posts').then((response) => {
+  var array = response.data['data']
+  // console.log(array[0]['coordinate']['coordinates']);
+  array.forEach(element => {
+    markersArray.push(element['coordinate']['coordinates'])
   });
 
-  if (feature && feature.get('type') == 'Point') {
-    var coordinate = evt.coordinate;
+  for (let i = 0; i < markersArray.length; i++) {
+    // console.log(markersArray[i]);
+    var marker = new Feature(new Point(fromLonLat(markersArray[i])))
+    markers.getSource().addFeature(marker)
+  }
 
-    content.innerHTML = feature.get('desc');
-    popup.setPosition(coordinate);
+  map.addLayer(markers)
+})
+
+map.on('click', function (e) {
+  console.log(map.getCoordinateFromPixel(e.pixel));
+  var coordinate = map.getCoordinateFromPixel(e.pixel);
+  if (selectedCoordinates.start.length == 0) {
+    selectedCoordinates.start = coordinate
+    document.getElementById('fromLon').value = selectedCoordinates.start[0]
+    document.getElementById('fromLat').value = selectedCoordinates.start[1]
+  } else {
+    selectedCoordinates.end = coordinate
+    document.getElementById('toLon').value = selectedCoordinates.end[0]
+    document.getElementById('toLat').value = selectedCoordinates.end[1]
   }
-  else {
-    popup.setPosition(undefined);
+
+  const fromLon = document.getElementById('fromLon').value
+  const fromLat = document.getElementById('fromLat').value
+  const toLon = document.getElementById('toLon').value
+  const toLat = document.getElementById('toLat').value
+
+  if (fromLon != null && fromLat != null && toLon != null && toLat != null) {
+    // console.log(selectedCoordinates);
+    createRoute(fromLon, fromLat, toLon, toLat)
   }
-});
+})
+
+const line = new VectorLayer({
+  source: new VectorSource(),
+  style: new Style({
+    stroke: new Stroke({
+      width: 3,
+      color: 'black'
+    })
+  })
+})
+
+function createRoute(fromLon, fromLat, toLon, toLat) {
+  const apiKey = '5b3ce3597851110001cf62482e90325d33734b4193345a80836635aa'
+  return axios.get(`https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=${fromLon},${fromLat}&end=${toLon},${toLat}`).then(
+    (response) => {
+      console.log(response);
+
+      line.getSource().addFeatures(new GeoJSON().readFeatures(response.data))
+      map.addLayer(line)
+    }
+  )
+}
+
+document.getElementById('reset').onclick = function () {
+  map.removeLayer(line)
+  document.getElementById('fromLon').value = null
+  document.getElementById('fromLat').value = null
+  document.getElementById('toLon').value = null
+  document.getElementById('toLat').value = null
+  selectedCoordinates.start = []
+  selectedCoordinates.end = []
+}
+
+
