@@ -1,19 +1,21 @@
 const app = require('express')()
 const bodyParser = require('body-parser')
 const { sequelize } = require('./models')
+const cors = require('cors')
 const userController = require('./controllers/user')
 const roleController = require('./controllers/role')
 const postController = require('./controllers/post')
 const authController = require('./controllers/auth')
 const routeController = require('./controllers/route')
-const authMiddleware = require('./middleware/auth')
+const authMiddleware = require('./middleware/verify-token')
 
 const PORT = process.env.PORT || 3100
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({
-  extended: true
+  extended: false
 }))
+app.use(cors())
 
 app.get('/', (req, res) => {
   res.send('Still an unnamed project')
@@ -37,6 +39,7 @@ app.post('/api/route/create', routeController.createRoute)
 
 //Post
 app.get('/api/posts', postController.getAllPost)
+app.get('/api/post', postController.getPostById)
 app.post('/api/post/create', authMiddleware.verifyToken, postController.createPost)
 app.delete('/api/post/delete', authMiddleware.verifyToken, postController.deletePost)
 app.put('/api/post/update', authMiddleware.verifyToken, postController.updatePost)

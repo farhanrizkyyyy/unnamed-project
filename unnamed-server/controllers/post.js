@@ -39,6 +39,29 @@ const createPost = async (req, res) => {
   }
 }
 
+const getPostById = async (req, res) => {
+  try {
+    const id = req.query.id
+    const post = await Post.findOne({
+      where: { id }
+    })
+
+    if (!post) {
+      res.send({
+        status: 'Error',
+        message: 'Post not found'
+      })
+    }
+
+    res.send({
+      status: 'Success',
+      data: post
+    })
+  } catch (error) {
+
+  }
+}
+
 const getAllPost = async (req, res) => {
   try {
     const posts = await Post.findAll()
@@ -148,4 +171,4 @@ const updatePost = async (req, res) => {
   }
 }
 
-module.exports = { createPost, getAllPost, deletePost, updatePost }
+module.exports = { createPost, getAllPost, deletePost, updatePost, getPostById }

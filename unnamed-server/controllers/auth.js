@@ -43,8 +43,8 @@ const signIn = async (req, res) => {
     await User.update(
       { token: token },
       {
-        returning: true,
-        where: { id: user.id }
+        where: { id: user.id },
+        returning: true
       }
     )
 
