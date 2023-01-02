@@ -10,25 +10,45 @@
 </head>
 
 <body>
-  <div id="container">
-    <div id="form">
-      <form action="index.html" method="post">
-        From: <br>
-        <input type="text" name="fromLat" id="fromLat">
-        <input type="text" name="fromLon" id="fromLon"> <br> <br>
-        To: <br>
-        <input type="text" name="toLat" id="toLat">
-        <input type="text" name="toLon" id="toLon">
-      </form>
-      <br>
-      <input type="button" value="Reset" id="reset">
-    </div>
-    <div id="map"></div>
-    <div id="popup" title="myproject" class="ol-popup">
-      <a href="#" id="popup-closer" class="ol-popup-closer"></a>
-      <div id="popup-content"></div>
+  <div id="form">
+    <form action="index.html" method="post">
+      <center><b>Create route</b></center> <br> <br>
+      From: <br>
+      <input type="text" name="fromLat" id="fromLat">
+      <input type="text" name="fromLon" id="fromLon"> <br> <br>
+      To: <br>
+      <input type="text" name="toLat" id="toLat">
+      <input type="text" name="toLon" id="toLon">
+    </form>
+    <br>
+    <input type="button" value="Reset" id="reset">
+  </div>
+  <div id="route">
+    <center><b>Route info</b></center> <br>
+    <div id="distance">Distance: -</div>
+    <div id="duration">Duration: -</div>
+  </div>
+  <div id="post">
+    <center><b>Create post</b></center> <br> <br>
+    <form action="index.html" method="post">
+      Description: <br>
+      <textarea name="posts" id="posts" cols="46" rows="10"></textarea> <br> <br>
+      Location: <br>
+      <input type="text" name="postLat" id="postLat">
+      <input type="text" name="postLon" id="postLon">
+    </form>
+    <br>
+    <div>
+      <input type="button" value="Reset" id="post-reset">
+      <input type="button" value="Post" id="post-btn">
     </div>
   </div>
+  <div id="map"></div>
+  <div id="popup" title="myproject" class="ol-popup">
+    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+    <div id="popup-content"></div>
+  </div>
+
   <script type="module" src="./main.js"></script>
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/4.6.5/ol.js"></script>
